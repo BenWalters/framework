@@ -71,6 +71,10 @@ class SupportCollectionTest extends TestCase
         $data = new $collection;
         $result = $data->first(null, 'default');
         $this->assertSame('default', $result);
+
+        $data = new $collection(['foo', 'bar']);
+        $result = $data->first(null, 'default');
+        $this->assertSame('foo', $result);
     }
 
     /**
@@ -2158,6 +2162,7 @@ class SupportCollectionTest extends TestCase
         $this->assertFalse($data->has('third'));
         $this->assertTrue($data->has(['first', 'second']));
         $this->assertFalse($data->has(['third', 'first']));
+        $this->assertTrue($data->has('first', 'second'));
     }
 
     /**
@@ -2172,6 +2177,8 @@ class SupportCollectionTest extends TestCase
         $this->assertTrue($data->hasAny(['first', 'second']));
         $this->assertTrue($data->hasAny(['first', 'fourth']));
         $this->assertFalse($data->hasAny(['third', 'fourth']));
+        $this->assertFalse($data->hasAny('third', 'fourth'));
+        $this->assertFalse($data->hasAny([]));
     }
 
     /**
@@ -5099,6 +5106,27 @@ class SupportCollectionTest extends TestCase
     {
         $data = new $collection([1, 2, 3]);
         $this->assertNull($data->get(null));
+    }
+
+    /**
+     * @dataProvider collectionClassProvider
+     */
+    public function testGetWithDefaultValue($collection)
+    {
+        $data = new $collection(['name' => 'taylor', 'framework' => 'laravel']);
+        $this->assertEquals('34', $data->get('age', 34));
+    }
+
+    /**
+     * @dataProvider collectionClassProvider
+     */
+    public function testGetWithCallbackAsDefaultValue($collection)
+    {
+        $data = new $collection(['name' => 'taylor', 'framework' => 'laravel']);
+        $result = $data->get('email', function () {
+            return 'taylor@example.com';
+        });
+        $this->assertEquals('taylor@example.com', $result);
     }
 
     /**

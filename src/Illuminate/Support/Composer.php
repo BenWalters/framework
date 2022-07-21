@@ -65,7 +65,7 @@ class Composer
      *
      * @return array
      */
-    protected function findComposer()
+    public function findComposer()
     {
         if ($this->files->exists($this->workingPath.'/composer.phar')) {
             return [$this->phpBinary(), 'composer.phar'];
@@ -115,13 +115,17 @@ class Composer
      */
     public function getVersion()
     {
-        $command = array_merge($this->findComposer(), ['-V']);
+        $command = array_merge($this->findComposer(), ['-V', '--no-ansi']);
 
         $process = $this->getProcess($command);
 
         $process->run();
 
         $output = $process->getOutput();
+
+        if (preg_match('/(\d+(\.\d+){2})/', $output, $version)) {
+            return $version[1];
+        }
 
         return explode(' ', $output)[2] ?? null;
     }
